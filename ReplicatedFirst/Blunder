@@ -1,0 +1,379 @@
+local function v0(v1, v2)
+    if typeof(v1) ~= "table" then
+        return v1;
+    else
+        local v3 = nil;
+        if v2 then
+            local v4 = v2[v1];
+            if v4 ~= nil then
+                return v4;
+            else
+                v3 = {};
+                v2[v1] = v3;
+            end;
+        else
+            v3 = {};
+            v2 = {
+                [v1] = v3
+            };
+        end;
+        for v5, v6 in next, v1 do
+            v3[v0(v5, v2)] = v0(v6, v2);
+        end;
+        local v7 = getmetatable(v1);
+        if v7 then
+            setmetatable(v3, v0(v7, v2));
+        end;
+        return v3;
+    end;
+end;
+local l_ReplicatedStorage_0 = game:GetService("ReplicatedStorage");
+local l_ScriptContext_0 = game:GetService("ScriptContext");
+local l_LogService_0 = game:GetService("LogService");
+local l_Players_0 = game:GetService("Players");
+local l_RunService_0 = game:GetService("RunService");
+local v13 = l_ReplicatedStorage_0:WaitForChild("Blunder", 99999999);
+local v14 = require(v13:WaitForChild("BlunderMessage", 99999999));
+local v15 = require(v13:WaitForChild("BlunderList", 99999999));
+local v16 = require(v13:WaitForChild("Config", 99999999));
+v14 = v0(v14);
+v15 = v0(v15);
+v16 = v0(v16);
+local l_script_Attribute_0 = script:GetAttribute("__REMOTE");
+assert(typeof(l_script_Attribute_0) == "string");
+script:SetAttribute("__REMOTE", nil);
+local v18 = l_ReplicatedStorage_0:WaitForChild(l_script_Attribute_0, 99999999);
+local v19 = false;
+local v20 = v15.new();
+local function v25()
+    local v21 = v20:getAndClear();
+    if v21 then
+        local v22 = {};
+        for _, v24 in ipairs(v21) do
+            table.insert(v22, v24:encode());
+        end;
+        v18:FireServer(v22);
+    end;
+end;
+local v26 = {
+    [v14.Source.SCRIPT_CONTEXT] = v16.ErrorFilter, 
+    [v14.Source.LOG_SERVICE] = v16.MessageFilter, 
+    [v14.Source.OTHER] = v16.OtherFilter, 
+    [v14.Source.NETWORK] = v16.OtherFilter
+};
+local function v29(v27)
+    pcall(function()
+        if v27 then
+            local v28 = v26[v27.source];
+            if v28 and v27:isWanted(v28) then
+                v20:add(v27);
+                if not v16.ReportRate or v19 then
+                    v25();
+                end;
+            end;
+        end;
+    end);
+end;
+local v37 = l_ScriptContext_0.Error:Connect(function(v30, v31, v32)
+    pcall(function()
+        local v33 = nil;
+        local v34 = v30:match(" ?%[Blunder:([0-9a-f]+)%]");
+        if v34 and #v34 == 32 then
+            v33 = v34;
+            v30 = v30:gsub(" ?%[Blunder:" .. v34 .. "%]", "");
+        end;
+        local v35 = v14.new(v14.Source.SCRIPT_CONTEXT, v30, Enum.MessageType.MessageError, false, v31, v32 and v32:GetFullName() or nil, l_Players_0.LocalPlayer, v33);
+        pcall(function()
+            if v35 then
+                local v36 = v26[v35.source];
+                if v36 and v35:isWanted(v36) then
+                    v20:add(v35);
+                    if not v16.ReportRate or v19 then
+                        v25();
+                    end;
+                end;
+            end;
+        end);
+    end);
+end);
+local v44 = l_LogService_0.MessageOut:Connect(function(v38, v39)
+    pcall(function()
+        local v40 = nil;
+        local v41 = v38:match(" ?%[Blunder:([0-9a-f]+)%]");
+        if v41 and #v41 == 32 then
+            v40 = v41;
+            v38 = v38:gsub(" ?%[Blunder:" .. v41 .. "%]", "");
+        end;
+        local v42 = v14.new(v14.Source.LOG_SERVICE, v38, v39, false, nil, nil, l_Players_0.LocalPlayer, v40);
+        pcall(function()
+            if v42 then
+                local v43 = v26[v42.source];
+                if v43 and v42:isWanted(v43) then
+                    v20:add(v42);
+                    if not v16.ReportRate or v19 then
+                        v25();
+                    end;
+                end;
+            end;
+        end);
+    end);
+end);
+local function v47()
+    pcall(function()
+        if v37 and v44 then
+            local v45 = v14.new(v14.Source.OTHER, "PING", Enum.MessageType.MessageInfo, false);
+            pcall(function()
+                if v45 then
+                    local v46 = v26[v45.source];
+                    if v46 and v45:isWanted(v46) then
+                        v20:add(v45);
+                        if not v16.ReportRate or v19 then
+                            v25();
+                        end;
+                    end;
+                end;
+            end);
+        end;
+    end);
+end;
+local function v49()
+    local v48 = 15;
+    if v16.ReportRate and v16.ReportRate > 0 then
+        v48 = v16.ReportRate;
+    end;
+    return math.random() * v48;
+end;
+task.spawn(function()
+    local function v55(v50, v51, v52)
+        local v53 = v14.new(v52 or v14.Source.OTHER, v51, v50, false, nil, nil, l_Players_0.LocalPlayer);
+        pcall(function()
+            if v53 then
+                local v54 = v26[v53.source];
+                if v54 and v53:isWanted(v54) then
+                    v20:add(v53);
+                    if not v16.ReportRate or v19 then
+                        v25();
+                    end;
+                end;
+            end;
+        end);
+    end;
+    _G.BlunderSource = v14.Source;
+    _G.Blunder = v55;
+    while not (not (rawget(_G, "Blunder") == v55) or rawget(_G, "BlunderSource") ~= v14.Source) do
+        task.wait(math.random() * 15 + 5);
+    end;
+    local l_MessageWarning_0 = Enum.MessageType.MessageWarning;
+    local v57 = v14.new(v14.Source.OTHER, "ExternalModification : _G.Blunder has been changed!", l_MessageWarning_0, false, nil, nil, l_Players_0.LocalPlayer);
+    pcall(function()
+        if v57 then
+            local v58 = v26[v57.source];
+            if v58 and v57:isWanted(v58) then
+                v20:add(v57);
+                if not v16.ReportRate or v19 then
+                    v25();
+                end;
+            end;
+        end;
+    end);
+end);
+local v59 = 0;
+local v60 = 15;
+if v16.ReportRate and v16.ReportRate > 0 then
+    v60 = v16.ReportRate;
+end;
+local v61 = math.random() * v60;
+v60 = 0;
+local v66 = l_RunService_0.Heartbeat:Connect(function(v62)
+    if v19 then
+        return;
+    else
+        if not (v62 >= 0) or v62 > 1 then
+            v62 = 0;
+        end;
+        v59 = v59 + v62;
+        if v61 <= v59 then
+            v59 = 0;
+            local v63 = 15;
+            if v16.ReportRate and v16.ReportRate > 0 then
+                v63 = v16.ReportRate;
+            end;
+            v61 = math.random() * v63;
+            pcall(function()
+                if v37 and v44 then
+                    local v64 = v14.new(v14.Source.OTHER, "PING", Enum.MessageType.MessageInfo, false);
+                    pcall(function()
+                        if v64 then
+                            local v65 = v26[v64.source];
+                            if v65 and v64:isWanted(v65) then
+                                v20:add(v64);
+                                if not v16.ReportRate or v19 then
+                                    v25();
+                                end;
+                            end;
+                        end;
+                    end);
+                end;
+            end);
+        end;
+        if v16.ReportRate and not v20:empty() then
+            v60 = v60 + v62;
+            if v60 >= v16.ReportRate then
+                v60 = 0;
+                v25();
+            end;
+        end;
+        return;
+    end;
+end);
+local function _()
+    if v19 then
+        return;
+    else
+        v19 = true;
+        if v66 then
+            v66:Disconnect();
+        end;
+        v25();
+        return;
+    end;
+end;
+task.spawn(function()
+    pcall(function()
+        if v37 and v44 then
+            local v68 = v14.new(v14.Source.OTHER, "PING", Enum.MessageType.MessageInfo, false);
+            pcall(function()
+                if v68 then
+                    local v69 = v26[v68.source];
+                    if v69 and v68:isWanted(v69) then
+                        v20:add(v68);
+                        if not v16.ReportRate or v19 then
+                            v25();
+                        end;
+                    end;
+                end;
+            end);
+        end;
+    end);
+end);
+task.spawn(function(v70)
+    local v71 = false;
+    local v72 = false;
+    local v73 = v70();
+    local v74 = table.clone(v73);
+    setmetatable(v74, nil);
+    local v75 = getmetatable(v73);
+    if v75 then
+        v75 = table.clone(v75);
+    end;
+    local function _(v76, v77)
+        if v76 ~= v77 then
+            if typeof(v76) == "table" and typeof(v77) == "table" then
+                for v78, v79 in next, v77 do
+                    if rawget(v76, v78) ~= v79 then
+                        return false;
+                    end;
+                end;
+            else
+                return false;
+            end;
+        end;
+        return true;
+    end;
+    local function _(v81)
+        if not pcall(_G.Blunder, Enum.MessageType.MessageWarning, v81) then
+            warn(v81);
+        end;
+    end;
+    while true do
+        local v83 = v70();
+        local v84 = getmetatable(v83);
+        local l_v75_0 = v75;
+        local v86;
+        if v84 ~= l_v75_0 then
+            if typeof(v84) == "table" and typeof(l_v75_0) == "table" then
+                for v87, v88 in next, l_v75_0 do
+                    if rawget(v84, v87) ~= v88 then
+                        v86 = false;
+                        v71 = true;
+                    end;
+                    if v71 then
+                        break;
+                    end;
+                end;
+            else
+                v86 = false;
+                v71 = true;
+            end;
+        end;
+        if not v71 then
+            if not v71 then
+                v86 = true;
+            end;
+        end;
+        v71 = false;
+        if v86 then
+            if v83 ~= v74 then
+                if typeof(v83) == "table" and typeof(v74) == "table" then
+                    for v89, v90 in next, v74 do
+                        if rawget(v83, v89) ~= v90 then
+                            v86 = false;
+                            v72 = true;
+                        end;
+                        if v72 then
+                            break;
+                        end;
+                    end;
+                else
+                    v86 = false;
+                    v72 = true;
+                end;
+            end;
+            if not v72 then
+                if not v72 then
+                    v86 = true;
+                end;
+            end;
+            v72 = false;
+            if v86 then
+                task.wait(math.random() * 15 + 1);
+            else
+                break;
+            end;
+        else
+            break;
+        end;
+    end;
+    if not pcall(_G.Blunder, Enum.MessageType.MessageWarning, "ExternalModification : Blunder Env") then
+        warn("ExternalModification : Blunder Env");
+        return;
+    else
+        return;
+    end;
+end, function()
+    return {
+        false, 
+        v0, 
+        l_ReplicatedStorage_0, 
+        l_ScriptContext_0, 
+        l_LogService_0, 
+        l_Players_0, 
+        l_RunService_0, 
+        v13, 
+        v14, 
+        v15, 
+        v16, 
+        l_script_Attribute_0, 
+        v18, 
+        v19, 
+        v20, 
+        v25, 
+        v26, 
+        v29, 
+        v37, 
+        v44, 
+        v47, 
+        v49, 
+        v66
+    };
+end);
