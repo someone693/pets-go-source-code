@@ -1,0 +1,520 @@
+local l_TweenService_0 = game:GetService("TweenService");
+local l_RunService_0 = game:GetService("RunService");
+local l_ContentProvider_0 = game:GetService("ContentProvider");
+local _ = game:GetService("ReplicatedStorage");
+local _ = game:GetService("UserInputService");
+local v5 = l_RunService_0:IsStudio() and true or false;
+local l_Y_0 = workspace.CurrentCamera.ViewportSize.Y;
+local v7 = false;
+local v8 = nil;
+local v9 = nil;
+local v10 = nil;
+local v11 = {};
+local v12 = nil;
+local v13 = nil;
+local v14 = nil;
+local v15 = nil;
+local v16 = false;
+local v17 = false;
+ToggleCoreUI = function(v18)
+	if l_Y_0 < 550 then
+		return;
+	else
+		local l_StarterGui_0 = game:GetService("StarterGui");
+		l_StarterGui_0:SetCoreGuiEnabled("All", v18);
+		l_StarterGui_0:SetCoreGuiEnabled(Enum.CoreGuiType.Health, false);
+		l_StarterGui_0:SetCoreGuiEnabled(Enum.CoreGuiType.Backpack, false);
+		return;
+	end;
+end;
+Init = function()
+	game.ReplicatedFirst:RemoveDefaultLoadingScreen();
+	v8 = game.Players.LocalPlayer:WaitForChild("PlayerGui");
+	v8:SetTopbarTransparency(0);
+	ToggleCoreUI(false);
+	HideGameInterface();
+	v10 = script:WaitForChild("IntroGui");
+	v10.Name = "__INTRO";
+	v10.Parent = not v5 and v8 or nil;
+	v12 = v10:WaitForChild("Frame");
+	v13 = v12:WaitForChild("Logo");
+	v14 = v12:WaitForChild("Dots");
+	v15 = v12:WaitForChild("Fade");
+	v9 = script:WaitForChild("IntroSound");
+	if not v5 then
+		local v20 = {};
+		l_ContentProvider_0:PreloadAsync({
+			v9, 
+			v13.Image
+		}, function(v21, v22)
+			table.insert(v20, {
+				v21, 
+				Enum.AssetFetchStatus.Success == v22
+			});
+		end);
+		local v23 = os.clock();
+		while #v20 < 2 and os.clock() - v23 < 1 do
+			task.wait();
+		end;
+		if #v20 < 2 then
+			warn("Intro error #2: Time exceeded for intro assets preload");
+		end;
+	end;
+end;
+Intro = function()
+	local function _()
+		v9:Play();
+	end;
+	local function v27()
+		local l_Size_0 = v13.Size;
+		local v26 = UDim2.new(l_Size_0.X.Scale * 0.6, l_Size_0.X.Offset * 0.6, l_Size_0.Y.Scale * 0.6, l_Size_0.Y.Offset * 0.6);
+		v13.ImageTransparency = 0.2;
+		v13.Size = v26;
+		v13.Visible = true;
+		Tween(v13, {
+			Size = l_Size_0, 
+			ImageTransparency = 0
+		}, {
+			0.66, 
+			"Back", 
+			"Out"
+		});
+	end;
+	local function v29()
+		local l_Position_0 = v14.Position;
+		v14.Position = UDim2.new(l_Position_0.X.Scale, l_Position_0.X.Offset, l_Position_0.Y.Scale + 0.05, l_Position_0.Y.Offset);
+		v14.Visible = true;
+		Tween(v14, {
+			Position = l_Position_0
+		}, {
+			0.8, 
+			"Expo", 
+			"Out"
+		});
+	end;
+	v9:Play();
+	v27();
+	v29();
+end;
+Load = function()
+	local function _()
+		if not game:IsLoaded() then
+			game.Loaded:Wait();
+		end;
+	end;
+	local function v32()
+		local l_LocalPlayer_0 = game.Players.LocalPlayer;
+		while not l_LocalPlayer_0.Character or not l_LocalPlayer_0.Character:FindFirstChild("Humanoid") do
+			task.wait();
+		end;
+	end;
+	local function v42()
+		if v5 then
+			return;
+		else
+			local l_Skip_0 = v12:WaitForChild("Skip");
+			local function v34()
+				v17 = true;
+				Tween(v14, {
+					Position = UDim2.new(0.5, 0, 0.8, -5)
+				}, {
+					0.5, 
+					"Sine", 
+					"InOut"
+				});
+				l_Skip_0.Visible = false;
+			end;
+			local function v36()
+				v16 = true;
+				local l_Size_1 = l_Skip_0.Size;
+				l_Skip_0.Size = UDim2.new(l_Skip_0.Size.X.Scale * 0.7, l_Skip_0.Size.X.Offset * 0.7, l_Skip_0.Size.Y.Scale * 0.7, l_Skip_0.Size.Y.Offset * 0.7);
+				l_Skip_0.Visible = true;
+				Tween(v14, {
+					Position = UDim2.new(0.5, 0, 0.78, -15)
+				}, {
+					0.3, 
+					"Sine", 
+					"Out"
+				});
+				Tween(l_Skip_0, {
+					Size = l_Size_1
+				}, {
+					0.6, 
+					"Back", 
+					"Out"
+				});
+				l_Skip_0.MouseButton1Up:Connect(function()
+					if not v17 then
+						v34();
+					end;
+				end);
+			end;
+			local v37 = os.clock();
+			local v38 = false;
+			task.spawn(function()
+				pcall(function()
+					local v39 = {};
+					local v40 = require(game.ReplicatedStorage.Library.Modules.Platform);
+					local _ = v40.GetDeviceType();
+					if v40.GetDeviceType() == "Desktop" then
+						if require(game.ReplicatedStorage.Library.Modules.PlaceFile).IsTrading then
+							table.insert(v39, (workspace:WaitForChild("TRADING", 99999999)));
+						else
+							table.insert(v39, (workspace:WaitForChild("MAP", 99999999)));
+						end;
+					end;
+					if #v39 > 0 then
+						game:GetService("ContentProvider"):PreloadAsync(v39);
+					end;
+				end);
+				v38 = true;
+			end);
+			while not v38 and os.clock() - v37 <= 10 and not v17 do
+				if os.clock() - v37 >= 3.5 and not v16 then
+					v36();
+				end;
+				task.wait();
+			end;
+			if v16 and not v17 then
+				v34();
+			end;
+			return;
+		end;
+	end;
+	local function v51()
+		local v43 = os.clock();
+		local v44 = nil;
+		local v45 = nil;
+		local v46 = nil;
+		local v47 = workspace:WaitForChild("__THINGS", 99999999):WaitForChild("__REMOTES", 99999999):WaitForChild("intro", 99999999);
+		while true do
+			if not v44 and os.clock() - v43 < 60 then
+				local v48, v49, v50 = v47:InvokeServer(true);
+				v44 = v48;
+				v45 = v49;
+				v46 = v50;
+				if v45 then
+					Banned(v46);
+					return;
+				elseif not v44 then
+					task.wait(0.5);
+				end;
+			elseif not v44 then
+				Error();
+				return;
+			else
+				return;
+			end;
+		end;
+	end;
+	local function v53()
+		ToggleCoreUI(true);
+		_G.IntroDone = true;
+		require(game.ReplicatedStorage.Library.Client.MigrationCmds).Load();
+		local v52 = require(game.ReplicatedStorage.Library);
+		while not v52.IsLoaded() do
+			task.wait();
+		end;
+	end;
+	local v54 = 0;
+	local function _()
+		local l_v54_0 = v54;
+		local l_v14_FirstChild_0 = v14:FindFirstChild((tostring(v54 + 1)));
+		coroutine.wrap(function()
+			wait();
+			while v54 == l_v54_0 and not v7 do
+				l_v14_FirstChild_0.Position = UDim2.new(l_v14_FirstChild_0.Position.X.Scale, l_v14_FirstChild_0.Position.X.Offset, math.sin(os.clock() * 15) * 0.1, 0);
+				l_RunService_0.RenderStepped:Wait();
+			end;
+			Tween(l_v14_FirstChild_0, {
+				Position = UDim2.new(l_v14_FirstChild_0.Position.X.Scale, l_v14_FirstChild_0.Position.X.Offset, 0, 0)
+			}, {
+				0.2, 
+				"Sine", 
+				"Out"
+			});
+		end)();
+	end;
+	local function v61()
+		if v5 then
+			return;
+		else
+			v54 = v54 + 1;
+			local l_v14_FirstChild_1 = v14:FindFirstChild(v54);
+			Tween(l_v14_FirstChild_1, {
+				BackgroundColor3 = Color3.fromRGB(253, 158, 66)
+			}, {
+				0.3, 
+				"Expo", 
+				"Out"
+			});
+			if v54 <= 4 then
+				local l_v54_1 = v54;
+				local l_v14_FirstChild_2 = v14:FindFirstChild((tostring(v54 + 1)));
+				coroutine.wrap(function()
+					wait();
+					while v54 == l_v54_1 and not v7 do
+						l_v14_FirstChild_2.Position = UDim2.new(l_v14_FirstChild_2.Position.X.Scale, l_v14_FirstChild_2.Position.X.Offset, math.sin(os.clock() * 15) * 0.1, 0);
+						l_RunService_0.RenderStepped:Wait();
+					end;
+					Tween(l_v14_FirstChild_2, {
+						Position = UDim2.new(l_v14_FirstChild_2.Position.X.Scale, l_v14_FirstChild_2.Position.X.Offset, 0, 0)
+					}, {
+						0.2, 
+						"Sine", 
+						"Out"
+					});
+				end)();
+			end;
+			return;
+		end;
+	end;
+	local l_v54_2 = v54;
+	local l_v14_FirstChild_3 = v14:FindFirstChild((tostring(v54 + 1)));
+	coroutine.wrap(function()
+		wait();
+		while v54 == l_v54_2 and not v7 do
+			l_v14_FirstChild_3.Position = UDim2.new(l_v14_FirstChild_3.Position.X.Scale, l_v14_FirstChild_3.Position.X.Offset, math.sin(os.clock() * 15) * 0.1, 0);
+			l_RunService_0.RenderStepped:Wait();
+		end;
+		Tween(l_v14_FirstChild_3, {
+			Position = UDim2.new(l_v14_FirstChild_3.Position.X.Scale, l_v14_FirstChild_3.Position.X.Offset, 0, 0)
+		}, {
+			0.2, 
+			"Sine", 
+			"Out"
+		});
+	end)();
+	if not game:IsLoaded() then
+		game.Loaded:Wait();
+	end;
+	if v7 then
+		return;
+	else
+		v61();
+		v32();
+		if v7 then
+			return;
+		else
+			v61();
+			v42();
+			if v7 then
+				return;
+			else
+				v61();
+				v51();
+				if v7 then
+					return;
+				else
+					v61();
+					v53();
+					if v7 then
+						return;
+					else
+						v61();
+						return;
+					end;
+				end;
+			end;
+		end;
+	end;
+end;
+ShowMessage = function()
+	local l_Notice_0 = v12:WaitForChild("Notice");
+	l_Notice_0:WaitForChild("Frame");
+	v15.Visible = true;
+	Tween(v15, {
+		Position = UDim2.new(0, 0, 0, 0)
+	}, {
+		0.7, 
+		"Linear"
+	}).Completed:Wait();
+	wait(0.5);
+	v14.Visible = false;
+	v13.Visible = false;
+	l_Notice_0.Visible = true;
+	Tween(v15, {
+		Position = UDim2.new(0, 0, 1, 0)
+	}, {
+		0.7, 
+		"Linear"
+	});
+	return l_Notice_0;
+end;
+Error = function()
+	v7 = true;
+	local v65 = ShowMessage();
+	v65.Frame.Button.Visible = true;
+	v65.Frame.Desc.Text = "Something went wrong. Do you want to try re-joining?";
+	v65.Frame.TimeLeft.Visible = false;
+	v65.Frame.Title.Text = "Error";
+	local v66 = false;
+	v65.Frame.Button.Activated:Connect(function()
+		if not v66 then
+			v66 = true;
+			game:GetService("TeleportService"):Teleport(game.PlaceId, game.Players.LocalPlayer);
+			v66 = false;
+		end;
+	end);
+end;
+Banned = function(v67)
+	v7 = true;
+	local v68 = ShowMessage();
+	v68.Frame.Button.Visible = false;
+	v68.Frame.Desc.Text = "You've been banned from playing on this account. If you believe this was an accident, appeal on our Discord.";
+	v68.Frame.TimeLeft.Visible = true;
+	v68.Frame.TimeLeft.Text = "Time Left: " .. (v67 or "Forever");
+	v68.Frame.Title.Text = "Banned";
+end;
+Revert = function()
+	v7 = true;
+	for _, v70 in ipairs(v11) do
+		v70.Enabled = true;
+	end;
+	v15.Visible = true;
+	Tween(v15, {
+		Position = UDim2.new(0, 0, 0, 0)
+	}, {
+		0.3, 
+		"Linear"
+	}).Completed:Wait();
+	Tween(v12, {
+		Position = UDim2.new(0.5, 0, -2, 0)
+	}, {
+		0.5, 
+		"Quad", 
+		"Out"
+	}).Completed:Wait();
+	game.Debris:AddItem(v10, 0);
+end;
+HideGameInterface = function()
+	local function v73()
+		for _, v72 in ipairs(v8:GetChildren()) do
+			if v72.Name ~= "Dex" and (not (v72.ClassName ~= "ScreenGui" and v72.ClassName ~= "BillboardGui") or v72.ClassName == "SurfaceGui") and v72.Enabled and v72.Name ~= "__INTRO" then
+				if not table.find(v11, v72) then
+					table.insert(v11, v72);
+				end;
+				v72.Enabled = false;
+			end;
+		end;
+	end;
+	coroutine.wrap(function()
+		while not v7 do
+			v73();
+			task.wait();
+		end;
+	end)();
+end;
+Tween = function(v74, v75, v76, v77)
+	local v78 = nil;
+	v78 = if type(v74) == "table" then v74 else {
+		v74
+	};
+	local v79 = {};
+	for _, v81 in ipairs(v78) do
+		local v82 = nil;
+		if v76 == nil then
+			v82 = {
+				1, 
+				Enum.EasingStyle.Linear, 
+				Enum.EasingDirection.Out
+			};
+		else
+			v82 = v76;
+			if v82[2] == nil then
+				v82[2] = Enum.EasingStyle.Sine;
+			elseif type(v82[2]) == "string" then
+				if string.lower(v82[2]) == "expo" then
+					v82[2] = Enum.EasingStyle.Exponential;
+				else
+					v82[2] = Enum.EasingStyle[v82[2]];
+				end;
+			end;
+			if v82[3] == nil then
+				v82[3] = Enum.EasingDirection.InOut;
+			elseif type(v82[3]) == "string" then
+				v82[3] = Enum.EasingDirection[v82[3]];
+			end;
+		end;
+		local v83 = TweenInfo.new(unpack(v82));
+		local v84 = nil;
+		if v75.Scale and v81:IsA("Model") then
+			local l_NumberValue_0 = Instance.new("NumberValue");
+			v84 = l_NumberValue_0;
+			l_NumberValue_0.Value = v81:GetScale();
+			local l_l_NumberValue_0_0 = l_NumberValue_0 --[[ copy: 14 -> 18 ]];
+			l_NumberValue_0.Changed:Connect(function()
+				if v81.Parent then
+					v81:ScaleTo(l_l_NumberValue_0_0.Value);
+				end;
+			end);
+			v75.Value = v75.Scale;
+			v75.Scale = nil;
+		elseif v75.CFrame and v81:IsA("Model") then
+			local l_CFrameValue_0 = Instance.new("CFrameValue");
+			v84 = l_CFrameValue_0;
+			l_CFrameValue_0.Value = v81:GetPivot();
+			local l_l_CFrameValue_0_0 = l_CFrameValue_0 --[[ copy: 14 -> 17 ]];
+			l_CFrameValue_0.Changed:Connect(function()
+				if v81.Parent then
+					v81:PivotTo(l_l_CFrameValue_0_0.Value);
+				end;
+			end);
+			v75.Value = v75.CFrame;
+			v75.CFrame = nil;
+		elseif v75.Position and v81:IsA("Model") then
+			local l_Vector3Value_0 = Instance.new("Vector3Value");
+			v84 = l_Vector3Value_0;
+			l_Vector3Value_0.Value = v81:GetPivot().Position;
+			local l_l_Vector3Value_0_0 = l_Vector3Value_0 --[[ copy: 14 -> 16 ]];
+			l_Vector3Value_0.Changed:Connect(function()
+				if v81.Parent then
+					local l_v81_Pivot_0 = v81:GetPivot();
+					v81:PivotTo(l_v81_Pivot_0 - l_v81_Pivot_0.Position + l_l_Vector3Value_0_0.Value);
+				end;
+			end);
+			v75.Value = v75.Position;
+			v75.Position = nil;
+		elseif v75.Transparency and (v81:IsA("UIGradient") or v81:IsA("ParticleEmitter")) then
+			local l_NumberValue_1 = Instance.new("NumberValue");
+			v84 = l_NumberValue_1;
+			l_NumberValue_1.Value = v81.Transparency.Keypoints[1].Value;
+			local l_l_NumberValue_1_0 = l_NumberValue_1 --[[ copy: 14 -> 15 ]];
+			l_NumberValue_1.Changed:Connect(function()
+				if v81.Parent then
+					v81.Transparency = NumberSequence.new(l_l_NumberValue_1_0.Value);
+				end;
+			end);
+			v75.Value = v75.Transparency;
+			v75.Transparency = nil;
+		end;
+		local v94 = l_TweenService_0:Create(v84 or v81, v83, v75);
+		do
+			local l_v84_0 = v84;
+			if l_v84_0 then
+				v94.Completed:Once(function()
+					l_v84_0:Destroy();
+				end);
+			end;
+			if v77 then
+				task.delay(v77, function()
+					v94:Play();
+				end);
+			else
+				v94:Play();
+			end;
+			table.insert(v79, v94);
+		end;
+	end;
+	return unpack(v79);
+end;
+Init();
+if not v5 then
+	Intro();
+end;
+Load();
+if not v7 then
+	Revert();
+else
+	game.Debris:AddItem(script, 3);
+end;
