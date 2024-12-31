@@ -1,0 +1,4 @@
+require(game:GetService("ReplicatedStorage"):WaitForChild("Library", 99999999):WaitForChild("Modules", 99999999):WaitForChild("Telemetry", 99999999));
+task.defer(function()
+    game:GetService("Debris"):AddItem(script);
+end);
